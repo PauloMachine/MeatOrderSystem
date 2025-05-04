@@ -1,0 +1,102 @@
+CREATE DATABASE MeatOrderSystem;
+
+USE MeatOrderSystem;
+
+CREATE TABLE MeatOrigins (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Meats (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(60) NOT NULL,
+    Description NVARCHAR(200) NOT NULL,
+    OriginId INT NOT NULL,
+    FOREIGN KEY (OriginId) REFERENCES MeatOrigins(Id)
+);
+
+CREATE TABLE States (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Abbreviation CHAR(2) NOT NULL
+);
+
+CREATE TABLE Cities (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    StateId INT NOT NULL,
+    FOREIGN KEY (StateId) REFERENCES States(Id)
+);
+
+CREATE TABLE Buyers (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Document NVARCHAR(20) NOT NULL,
+    CityId INT NOT NULL,
+    FOREIGN KEY (CityId) REFERENCES Cities(Id)
+);
+
+CREATE TABLE Orders (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    BuyerId INT NOT NULL,
+    OrderDate DATE NOT NULL,
+    CONSTRAINT FK_Orders_Buyers FOREIGN KEY (BuyerId)
+        REFERENCES Buyers(Id)
+        ON DELETE NO ACTION
+);
+
+CREATE TABLE OrderItems (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    OrderId INT NOT NULL,
+    MeatId INT NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL CHECK (Price > 0),
+    Currency CHAR(3) NOT NULL CHECK (Currency IN ('BRL', 'USD', 'EUR')),
+    CONSTRAINT FK_OrderItems_Orders FOREIGN KEY (OrderId)
+        REFERENCES Orders(Id)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_OrderItems_Meats FOREIGN KEY (MeatId)
+        REFERENCES Meats(Id)
+        ON DELETE NO ACTION
+);
+
+INSERT INTO MeatOrigins (Name) VALUES
+('Bovina'),
+('Suína'),
+('Aves'),
+('Peixes');
+
+INSERT INTO States (Name, Abbreviation) VALUES
+('São Paulo', 'SP'),
+('Minas Gerais', 'MG'),
+('Rio de Janeiro', 'RJ');
+
+INSERT INTO Cities (Name, StateId) VALUES
+('São Paulo', 1),
+('Campinas', 1),
+('Belo Horizonte', 2),
+('Juiz de Fora', 2),
+('Rio de Janeiro', 3),
+('Niterói', 3);
+
+INSERT INTO Buyers (Name, Document, CityId) VALUES
+('João da Silva', '12345678900', 1),
+('Maria Oliveira', '98765432100', 2),
+('Carlos Pereira', '11122233344', 3),
+('Fernanda Souza', '55566677788', 4),
+('Luana Costa', '99988877766', 5);
+
+INSERT INTO Meats (Name, Description, OriginId) VALUES
+('Picanha', 'Corte nobre da parte traseira do boi, muito suculenta', 1),
+('Costela Suína', 'Costela macia e saborosa, ideal para churrasco', 2),
+('Filé de Frango', 'Peito de frango sem osso, leve e versátil', 3),
+('Salmão', 'Peixe de carne alaranjada, rico em ômega-3', 4),
+('Alcatra', 'Corte bovino macio e com pouca gordura', 1),
+('Linguiça Toscana', 'Linguiça suína temperada, perfeita para grelha', 2);
+
+INSERT INTO Orders (BuyerId, OrderDate)
+VALUES (1, '2025-05-01');
+
+INSERT INTO OrderItems (OrderId, MeatId, Price, Currency)
+VALUES 
+    (1, 2, 59.99, 'USD')
+

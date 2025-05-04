@@ -1,0 +1,6 @@
+@MeatOrderSystem.Controller_HostAddress = http://localhost:5157
+
+GET {{MeatOrderSystem.Controller_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

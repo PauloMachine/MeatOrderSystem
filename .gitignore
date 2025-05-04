@@ -1,0 +1,61 @@
+# Build artifacts
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / VS Code settings
+.idea/
+.vscode/
+.vscode/*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# EF Core Migrations build artifacts
+Migrations/*.csproj.EntityFrameworkCore.*.props
+
+# Local secrets
+secrets.json
+
+# Auto-generated files
+*.generated.cs
+
+# Test results
+TestResults/
+coverage/
+
+# ASP.NET Core
+appsettings.Development.json
+appsettings.Local.json
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Dotnet tools
+.dotnet/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# VS Code workspace files
+*.code-workspace
+
+# Backup files
+*.bak
+*.tmp
+
+# Entity Framework generated snapshots
+**/Migrations/*Snapshot.cs
