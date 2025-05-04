@@ -1,4 +1,3 @@
-using MeatOrderSystem.Application.DTOs;
 using MeatOrderSystem.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,18 @@ public class MeatOriginController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _service.GetAllAsync();
-        return Ok(result);
+        try
+        {
+            var result = await _service.GetAllAsync();
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving meat origins.",
+                details = ex.Message
+            });
+        }
     }
 }

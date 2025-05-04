@@ -15,7 +15,14 @@ public class StateController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var states = await _service.GetAllAsync();
-        return Ok(states);
+        try
+        {
+            var states = await _service.GetAllAsync();
+            return Ok(states);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving states.", error = ex.Message });
+        }
     }
 }

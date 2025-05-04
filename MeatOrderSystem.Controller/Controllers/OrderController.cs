@@ -1,5 +1,4 @@
 using MeatOrderSystem.Application.DTOs;
-using MeatOrderSystem.Model.Entities;
 using MeatOrderSystem.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,49 +9,88 @@ namespace MeatOrderSystem.Controller.Controllers;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _service;
-    private readonly ICurrencyConverterService _converter;
 
-    public OrderController(IOrderService service, ICurrencyConverterService converter)
+    public OrderController(IOrderService service)
     {
         _service = service;
-        _converter = converter;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int? buyerId, [FromQuery] DateTime? date)
-        => Ok(await _service.GetAllAsync(buyerId, date));
+    {
+        try
+        {
+            var orders = await _service.GetAllAsync(buyerId, date);
+            return Ok(orders);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Failed to retrieve orders.", error = ex.Message });
+        }
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var order = await _service.GetByIdAsync(id);
-        return order is null ? NotFound() : Ok(order);
+        try
+        {
+            var order = await _service.GetByIdAsync(id);
+            return order is null
+                ? NotFound(new { message = $"Order with ID {id} not found." })
+                : Ok(order);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error retrieving the order.", error = ex.Message });
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        var created = await _service.AddAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _service.AddAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error creating the order.", error = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] CreateOrderDto dto)
     {
-        var success = await _service.UpdateAsync(id, dto);
-        return success ? NoContent() : NotFound();
+        try
+        {
+            var success = await _service.UpdateAsync(id, dto);
+            return success
+                ? NoContent()
+                : NotFound(new { message = $"Order with ID {id} not found." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error updating the order.", error = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var success = await _service.DeleteAsync(id);
-        
-        if (!success)
-            return NotFound(new { message = "Order not found for deletion." });
-
-        return NoContent();
+        try
+        {
+            var success = await _service.DeleteAsync(id);
+            return success
+                ? NoContent()
+                : NotFound(new { message = $"Order with ID {id} not found." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error deleting the order.", error = ex.Message });
+        }
     }
 }

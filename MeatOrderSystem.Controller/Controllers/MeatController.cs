@@ -1,4 +1,3 @@
-
 using MeatOrderSystem.Application.DTOs;
 using MeatOrderSystem.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,22 +17,46 @@ public class MeatController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
-        => Ok(await _service.GetAllAsync());
+    {
+        try
+        {
+            var meats = await _service.GetAllAsync();
+            return Ok(meats);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving meats.", details = ex.Message });
+        }
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var meat = await _service.GetByIdAsync(id);
-        return meat is null ? NotFound() : Ok(meat);
+        try
+        {
+            var meat = await _service.GetByIdAsync(id);
+            return meat is null ? NotFound() : Ok(meat);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving the meat.", details = ex.Message });
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateMeatDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        
-        var result = await _service.AddAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+
+        try
+        {
+            var result = await _service.AddAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while creating the meat.", details = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]
@@ -41,19 +64,31 @@ public class MeatController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var updated = await _service.UpdateAsync(id, dto);
-        return updated is null ? NotFound() : NoContent();
+        try
+        {
+            var updated = await _service.UpdateAsync(id, dto);
+            return updated is null ? NotFound() : NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while updating the meat.", details = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var (success, error) = await _service.DeleteAsync(id);
-
-        if (!success)
+        try
+        {
+            var (success, error) = await _service.DeleteAsync(id);
+            if (!success)
                 return Conflict(new { message = error });
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while deleting the meat.", details = ex.Message });
+        }
     }
 }
-
